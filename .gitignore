@@ -48,3 +48,7 @@ next-env.d.ts
 
 # env example is meant to be committed
 !.env.example
+
+#local agents
+.agents/
+skills-lock.json
