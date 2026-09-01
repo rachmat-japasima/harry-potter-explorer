@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { characterSchema } from "./schema";
+import { apiCharacterSchema } from "./schema";
 import { normalizeCharacter, searchCharacters } from "./utils";
 
 // Fixtures are verbatim records from the live API (2026-09-01):
@@ -50,19 +50,19 @@ const mrCrabbe = {
   image: "",
 };
 
-describe("characterSchema", () => {
+describe("apiCharacterSchema", () => {
   it("parses a fully-populated record from the live API", () => {
-    expect(() => characterSchema.parse(harry)).not.toThrow();
+    expect(() => apiCharacterSchema.parse(harry)).not.toThrow();
   });
 
   it("parses the 'everything unknown' shape (empty strings and nulls)", () => {
-    expect(() => characterSchema.parse(mrCrabbe)).not.toThrow();
+    expect(() => apiCharacterSchema.parse(mrCrabbe)).not.toThrow();
   });
 });
 
 describe("normalizeCharacter", () => {
   it("collapses empty strings and empty wand shells to null", () => {
-    const character = normalizeCharacter(characterSchema.parse(mrCrabbe));
+    const character = normalizeCharacter(apiCharacterSchema.parse(mrCrabbe));
     expect(character.house).toBeNull();
     expect(character.image).toBeNull();
     expect(character.patronus).toBeNull();
@@ -71,7 +71,7 @@ describe("normalizeCharacter", () => {
   });
 
   it("keeps populated values intact", () => {
-    const character = normalizeCharacter(characterSchema.parse(harry));
+    const character = normalizeCharacter(apiCharacterSchema.parse(harry));
     expect(character.house).toBe("Gryffindor");
     expect(character.dateOfBirth).toBe("31-07-1980");
     expect(character.wand).toEqual({
@@ -83,8 +83,8 @@ describe("normalizeCharacter", () => {
   });
 });
 
-const harryNorm = normalizeCharacter(characterSchema.parse(harry));
-const crabbeNorm = normalizeCharacter(characterSchema.parse(mrCrabbe));
+const harryNorm = normalizeCharacter(apiCharacterSchema.parse(harry));
+const crabbeNorm = normalizeCharacter(apiCharacterSchema.parse(mrCrabbe));
 
 describe("searchCharacters", () => {
   it("matches name case-insensitively", () => {

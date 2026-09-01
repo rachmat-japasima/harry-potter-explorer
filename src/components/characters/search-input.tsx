@@ -1,0 +1,58 @@
+"use client";
+
+import { useId, useState } from "react";
+import { Search } from "lucide-react";
+import { useQueryState } from "nuqs";
+
+import { useDebounce } from "@/hooks/use-debounce";
+
+/**
+ * Character search. State lives in the URL (?search=…); updates are
+ * debounced so each keystroke does not rewrite the URL/history.
+ */
+export function SearchInput({ debounceMs = 500 }: { debounceMs?: number }) {
+  const [search, setSearch] = useQueryState("search", {
+    defaultValue: "",
+    clearOnDefault: true,
+  });
+
+  const inputId = useId();
+
+  const [inputValue, setInputValue] = useState(search);
+
+  const setSearchDebounced = useDebounce(setSearch, debounceMs);
+
+  // Sync URL → local input. Adjusted during render (React's recommended
+  // pattern for adjusting state when a prop changes) instead of in an
+  // effect, which would trip react-hooks/set-state-in-effect.
+  const [prevSearch, setPrevSearch] = useState(search);
+  if (prevSearch !== search) {
+    setPrevSearch(search);
+    setInputValue(search);
+  }
+
+  const handleChange = (value: string) => {
+    setInputValue(value);
+    setSearchDebounced(value);
+  };
+
+  return (
+    <div className="relative max-w-md">
+      <Search
+        aria-hidden
+        className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+      />
+      <label htmlFor={inputId} className="sr-only">
+        Search characters
+      </label>
+      <input
+        id={inputId}
+        type="search"
+        value={inputValue}
+        onChange={(event) => handleChange(event.target.value)}
+        placeholder="Search characters by name…"
+        className="h-11 w-full rounded-md border border-input bg-background pl-9 pr-3 text-sm shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+      />
+    </div>
+  );
+}

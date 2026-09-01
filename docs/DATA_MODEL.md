@@ -121,3 +121,7 @@ Spell              (standalone collection — no relations)
 
 There are no foreign keys or links between characters and spells in the
 data; the app does not model any.
+
+House is not an entity because the API exposes no houses endpoint (verified
+404, see `API_CONTRACT.md`). The list of known houses is derived from
+character data by `getHouseList` in `src/features/houses/utils.ts`.

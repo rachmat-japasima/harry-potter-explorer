@@ -1,64 +1,58 @@
-import type { ApiCharacter } from "./schema";
-import type { Character, Wand } from "./types";
+import type { ApiCharacter } from "@/features/characters/schema";
+import type { Character, Wand } from "@/features/characters/types";
 
 /**
- * The API encodes "unknown" as `""` for most string fields. Normalize to
- * null once at the boundary so the UI deals with a single "no value" shape.
+ * The single boundary transform between API and domain records:
+ * 1. `""` → `null` for every string field.
+ * 2. Wand shells with no data → `wand: null`.
  */
-function toNull(value: string | null): string | null {
-  return value ? value : null;
-}
+export function normalizeCharacter(api: ApiCharacter): Character {
+  const emptyToNull = (value: string | null) => (value === "" ? null : value);
 
-/** Collapse an empty wand shell (412/437 records) to null. */
-function normalizeWand(wand: ApiCharacter["wand"]): Wand | null {
-  const wood = toNull(wand.wood);
-  const core = toNull(wand.core);
-  const length = wand.length;
-  if (wood === null && core === null && length === null) {
-    return null;
-  }
-  return { wood, core, length };
-}
-
-export function normalizeCharacter(character: ApiCharacter): Character {
   return {
-    id: character.id,
-    name: character.name,
-    alternate_names: character.alternate_names,
-    species: toNull(character.species),
-    gender: toNull(character.gender),
-    house: toNull(character.house),
-    dateOfBirth: toNull(character.dateOfBirth),
-    yearOfBirth: character.yearOfBirth,
-    wizard: character.wizard,
-    ancestry: toNull(character.ancestry),
-    eyeColour: toNull(character.eyeColour),
-    hairColour: toNull(character.hairColour),
-    wand: normalizeWand(character.wand),
-    patronus: toNull(character.patronus),
-    hogwartsStudent: character.hogwartsStudent,
-    hogwartsStaff: character.hogwartsStaff,
-    actor: toNull(character.actor),
-    alternate_actors: character.alternate_actors,
-    alive: character.alive,
-    image: toNull(character.image),
+    id: api.id,
+    name: api.name,
+    alternate_names: api.alternate_names,
+    species: emptyToNull(api.species),
+    gender: emptyToNull(api.gender),
+    house: emptyToNull(api.house),
+    dateOfBirth: emptyToNull(api.dateOfBirth),
+    yearOfBirth: api.yearOfBirth,
+    wizard: api.wizard,
+    ancestry: emptyToNull(api.ancestry),
+    eyeColour: emptyToNull(api.eyeColour),
+    hairColour: emptyToNull(api.hairColour),
+    wand: normalizeWand(api.wand),
+    patronus: emptyToNull(api.patronus),
+    hogwartsStudent: api.hogwartsStudent,
+    hogwartsStaff: api.hogwartsStaff,
+    actor: emptyToNull(api.actor),
+    alternate_actors: api.alternate_actors,
+    alive: api.alive,
+    image: emptyToNull(api.image),
   };
 }
 
+function normalizeWand(wand: ApiCharacter["wand"]): Wand | null {
+  const wood = wand.wood === "" ? null : wand.wood;
+  const core = wand.core === "" ? null : wand.core;
+  if (!wood && !core && wand.length === null) return null;
+  return { wood, core, length: wand.length };
+}
+
 /**
- * Client-side name search — the API has no search parameter.
- * Case-insensitive substring match on `name` and `alternate_names`;
- * an empty/whitespace query returns the input unchanged.
+ * Client-side name search — the API accepts no search parameter.
+ * Case-insensitive substring match on `name` and `alternate_names`.
  */
 export function searchCharacters(
   characters: Character[],
-  query: string
+  query: string,
 ): Character[] {
   const q = query.trim().toLowerCase();
   if (!q) return characters;
   return characters.filter(
     (c) =>
       c.name.toLowerCase().includes(q) ||
-      c.alternate_names.some((name) => name.toLowerCase().includes(q))
+      c.alternate_names.some((name) => name.toLowerCase().includes(q)),
   );
 }

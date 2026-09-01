@@ -34,9 +34,11 @@ comment at the top of `src/app/layout.tsx`.
 
 ## Application Layers
 
-App Router
+App Router (server pages under src/app, e.g. src/app/characters)
     ↓
-Feature Components
+Feature Components (client orchestrators, e.g. src/components/characters)
+    ↓
+Feature layer (src/features/<domain>/{api,queries,types,schema,utils}.ts)
     ↓
 TanStack Query
     ↓
@@ -65,5 +67,18 @@ Zustand (only when required)
 ## Error Handling
 
 ## Project Structure
+
+```
+src/
+├── app/                    # routes; server components by default
+│   └── characters/[id]/
+├── components/             # UI per feature (characters/, layout/, shared/)
+├── features/               # per-domain logic
+│   ├── characters/         # api, queries, types, schema, utils
+│   └── houses/             # utils only (no houses endpoint exists)
+├── lib/                    # api-client, utils
+├── providers/              # theme, TanStack Query
+└── test/                   # fixtures, render helper, setup
+```
 
 ## Performance Considerations

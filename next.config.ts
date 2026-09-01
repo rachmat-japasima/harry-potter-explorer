@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    // The 25 populated character portraits are served from imagekit.
+    remotePatterns: [{ protocol: "https", hostname: "ik.imagekit.io" }],
+  },
 };
 
 export default nextConfig;

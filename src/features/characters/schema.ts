@@ -1,24 +1,17 @@
 import { z } from "zod";
 
 /**
- * Zod schemas mirroring the actual `/api/characters` response (verified
- * 2026-09-01 against https://hp-api.onrender.com).
- *
- * Verified data facts these schemas encode:
- * - Every string field is always present; unknown values are `""` (never null),
- *   except dateOfBirth which is `null` (417/437) or `""` (1/437).
- * - yearOfBirth is `number | null` (414/437 null).
- * - wand is always an object with wood/core as strings (`""` when unknown)
- *   and length as `number | null`.
+ * Raw API character record. Unknown values arrive as `""` (strings) or
+ * `null` (dateOfBirth, yearOfBirth, wand.length). Normalization happens in
+ * utils.ts; the schema only validates shape.
  */
-
-export const wandSchema = z.object({
+export const apiWandSchema = z.object({
   wood: z.string(),
   core: z.string(),
   length: z.number().nullable(),
 });
 
-export const characterSchema = z.object({
+export const apiCharacterSchema = z.object({
   id: z.string(),
   name: z.string(),
   alternate_names: z.array(z.string()),
@@ -31,7 +24,7 @@ export const characterSchema = z.object({
   ancestry: z.string(),
   eyeColour: z.string(),
   hairColour: z.string(),
-  wand: wandSchema,
+  wand: apiWandSchema,
   patronus: z.string(),
   hogwartsStudent: z.boolean(),
   hogwartsStaff: z.boolean(),
@@ -41,5 +34,4 @@ export const characterSchema = z.object({
   image: z.string(),
 });
 
-/** Raw API shape — never used directly by the UI; normalize via utils. */
-export type ApiCharacter = z.infer<typeof characterSchema>;
+export type ApiCharacter = z.infer<typeof apiCharacterSchema>;

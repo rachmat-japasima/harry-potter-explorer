@@ -174,6 +174,19 @@ fetches only that house's records. Known house values: `Gryffindor`,
 302 have no house and are unreachable through the endpoint). Search and
 pagination apply client-side over whichever list is loaded.
 
+## Houses
+
+**No endpoint.** `GET /api/houses` and `GET /api/houses/:id` both return
+`404 Sorry can't find that!` (verified 2026-09-02). There is no house
+collection or house detail data on this deployment.
+
+**Application strategy**: the house list is derived from character data —
+`getHouseList` in `src/features/houses/utils.ts` returns the distinct
+non-null `house` values (Gryffindor, Hufflepuff, Ravenclaw, Slytherin),
+canonically ordered. Visual accents come from the same module
+(`getHouseStyles`, a canonical color map). No fake house endpoint or
+invented house descriptions are used.
+
 ## Data Normalization
 
 The API encodes "unknown" as `""` for most string fields and `null` for
