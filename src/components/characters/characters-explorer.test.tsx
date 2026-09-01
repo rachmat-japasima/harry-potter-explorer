@@ -1,3 +1,8 @@
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -30,6 +35,33 @@ beforeEach(() => {
 });
 
 describe("CharactersExplorer", () => {
+  it("renders build-time hydrated data without a duplicate client fetch", async () => {
+    // Simulate the build: prefetch on a "server" client, then hydrate into
+    // the app's client (Infinity staleTime mirrors the real provider).
+    const serverClient = new QueryClient();
+    mocks.getCharacters.mockResolvedValue(characters);
+    await serverClient.fetchQuery({
+      queryKey: ["characters"],
+      queryFn: mocks.getCharacters,
+    });
+
+    const appClient = new QueryClient({
+      defaultOptions: { queries: { staleTime: Infinity, retry: false } },
+    });
+    renderWithProviders(
+      <HydrationBoundary state={dehydrate(serverClient)}>
+        <CharactersExplorer />
+      </HydrationBoundary>,
+      { queryClient: appClient },
+    );
+
+    expect(
+      await screen.findByRole("link", { name: /harry potter/i }),
+    ).toBeInTheDocument();
+    // One "build-time" call; hydration must not trigger a client refetch.
+    expect(mocks.getCharacters).toHaveBeenCalledTimes(1);
+  });
+
   it("shows a skeleton while loading, then renders character cards", async () => {
     mocks.getCharacters.mockResolvedValue(characters);
     renderWithProviders(<CharactersExplorer />);

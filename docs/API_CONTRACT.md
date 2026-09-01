@@ -174,7 +174,7 @@ pagination parameters do not exist and are ignored if sent.
 **Application strategy** — pagination is purely presentational:
 
 ```
-Fetch full dataset (TanStack Query, cached)
+Fetch full dataset at build time (SSG), hydrate into TanStack Query
         ↓
 Filter / search locally (URL state via nuqs)
         ↓

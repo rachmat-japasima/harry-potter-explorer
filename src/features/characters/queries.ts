@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, type QueryClient } from "@tanstack/react-query";
 
 import {
   getCharacters,
@@ -13,6 +13,20 @@ export function useCharacters() {
   return useQuery({
     queryKey: ["characters"],
     queryFn: getCharacters,
+  });
+}
+
+/**
+ * Build-time (SSG) prefetch of the full list, used by the characters page.
+ * Uses fetchQuery (throws on failure) rather than prefetchQuery, which is
+ * deprecated and swallows errors — a dead API must fail the build loudly,
+ * not bake in an empty page.
+ */
+export function prefetchCharacters(queryClient: QueryClient) {
+  return queryClient.fetchQuery({
+    queryKey: ["characters"],
+    queryFn: getCharacters,
+    retry: 3,
   });
 }
 

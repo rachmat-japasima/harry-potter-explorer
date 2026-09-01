@@ -13,7 +13,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60_000,
+            // The dataset is immutable, and build-time hydrated data carries
+            // a build timestamp as dataUpdatedAt — any finite staleTime
+            // makes it instantly stale and refetches on mount (the duplicate
+            // initial request hydration exists to avoid). Manual refetch
+            // (Try again) and error retries still work.
+            staleTime: Infinity,
           },
         },
       })

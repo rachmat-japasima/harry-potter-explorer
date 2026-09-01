@@ -64,6 +64,12 @@ Zustand (only when required)
 
 ## Data Flow
 
+Build time (SSG): QueryClient → `fetchQuery` → `dehydrate` →
+`HydrationBoundary` — the static page carries the full character list.
+Runtime: TanStack Query holds the hydrated cache; search / house / type /
+pagination apply client-side; lazy queries (students, staff, house) fetch
+only when selected. Rationale in `DECISIONS.md`.
+
 ## Error Handling
 
 ## Project Structure
