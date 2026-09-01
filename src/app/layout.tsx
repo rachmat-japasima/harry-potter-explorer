@@ -65,9 +65,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to content
         </a>
+        {/* Warm brand glow, same as the home hero — sits behind the page
+            content. Invisible on / (the opaque hero covers it). */}
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-0 bg-[radial-gradient(60%_50%_at_50%_0%,var(--accent),transparent_70%)] opacity-25 mix-blend-screen"
+        />
         <Providers>
           <Navbar />
-          <main id="main" className="flex flex-1 flex-col">
+          {/* `relative` keeps the content above the fixed glow. */}
+          <main id="main" className="relative flex flex-1 flex-col">
             {children}
           </main>
           <Footer />
