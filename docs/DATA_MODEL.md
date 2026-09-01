@@ -47,6 +47,12 @@ interface Wand {
 }
 ```
 
+The type endpoints (`/api/characters/students` 103 records, `/api/characters/staff`
+25 records — verified 2026-09-02) return the **same record shape** as
+`/api/characters`; there is no separate Student/Staff model. The
+`hogwartsStudent` / `hogwartsStaff` booleans simply take the corresponding
+value in each collection.
+
 ## Spell
 
 ```ts

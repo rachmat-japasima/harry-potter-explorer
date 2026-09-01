@@ -19,3 +19,19 @@ export async function getHouseCharacters(house: string): Promise<Character[]> {
     await getJSON(`/api/characters/house/${encodeURIComponent(house)}`),
   );
 }
+
+/**
+ * Fetch the students-only collection (103 records). Same record shape as
+ * the full list; query params are ignored by the API (verified).
+ */
+export async function getStudents(): Promise<Character[]> {
+  return parseCharacters(await getJSON("/api/characters/students"));
+}
+
+/**
+ * Fetch the staff-only collection (25 records). Same record shape as the
+ * full list; query params are ignored by the API (verified).
+ */
+export async function getStaff(): Promise<Character[]> {
+  return parseCharacters(await getJSON("/api/characters/staff"));
+}

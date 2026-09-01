@@ -45,6 +45,7 @@ export function CharacterImage({
           priority={priority}
           onError={() => setBroken(true)}
           className="object-cover object-top"
+          loading={priority ? "eager" : "lazy"}
         />
       ) : (
         <div

@@ -40,7 +40,7 @@ export function HouseFilter({ houses }: { houses: string[] }) {
           chipBase,
           house === ""
             ? "bg-foreground text-background cursor-pointer"
-            : "bg-background text-muted-foreground hover:bg-muted",
+            : "bg-background text-muted-foreground hover:bg-muted cursor-pointer",
         )}
       >
         All

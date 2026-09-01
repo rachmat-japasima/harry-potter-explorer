@@ -9,6 +9,13 @@ export interface Wand {
   length: number | null;
 }
 
+/**
+ * Character type filter dimension, backed by the dedicated endpoints
+ * (`/api/characters/students`, `/api/characters/staff`). "all" is the
+ * default and maps to the main `/api/characters` list.
+ */
+export type CharacterType = "all" | "students" | "staff";
+
 export interface Character {
   id: string;
   name: string;

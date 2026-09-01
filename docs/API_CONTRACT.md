@@ -99,12 +99,40 @@ real UUIDs). There is no detail endpoint on this deployment.
 full list (`['characters']` TanStack Query cache, lookup by `id`). No fake
 endpoint is called.
 
+### Get Students
+
+```
+GET /api/characters/students
+```
+
+**Query Parameters**: none — ignored, same as `/api/characters` (verified:
+`?house=gryffindor` still returns all 103 students).
+
+**Response**: `200 OK`, a JSON **array** of 103 character records, identical
+shape to Get Characters. Every record has `"hogwartsStudent": true` (and
+`"hogwartsStaff": false`). Same Zod validation and normalization apply.
+
+**Errors**: same as Get Characters (plain-text `text/html` bodies).
+
+### Get Staff
+
+```
+GET /api/characters/staff
+```
+
+**Query Parameters**: none — ignored (verified: `?page=1&limit=2` still
+returns all 25 staff).
+
+**Response**: `200 OK`, a JSON **array** of 25 character records, identical
+shape to Get Characters. Every record has `"hogwartsStaff": true` (and
+`"hogwartsStudent": false`).
+
+**Errors**: same as Get Characters.
+
 ### Other verified endpoints (not used)
 
 | Endpoint | Status |
 |---|---|
-| `GET /api/characters/students` | 200 |
-| `GET /api/characters/staff` | 200 |
 | `GET /api/characters/house/:house` | 200 |
 
 ## Spells
@@ -165,14 +193,24 @@ case-insensitive substring match on `name` and `alternate_names`).
 
 **Partially supported by the API.** House filtering has a dedicated
 endpoint — `GET /api/characters/house/:house` (case-insensitive, unknown
-house → `[]`). The list endpoint itself accepts no filter parameters.
+house → `[]`). The list endpoint itself accepts no filter parameters, and
+the students/staff endpoints ignore them too (verified).
 
-**Application strategy**: the house filter calls the endpoint through
-TanStack Query (`['characters', 'house', house]`), so selecting a house
-fetches only that house's records. Known house values: `Gryffindor`,
-`Slytherin`, `Hufflepuff`, `Ravenclaw` (135 records total; the remaining
-302 have no house and are unreachable through the endpoint). Search and
-pagination apply client-side over whichever list is loaded.
+**Application strategy**: filters are a two-dimension system — Character
+Type (`all` / `students` / `staff`, URL `?type=…`) and House (`?house=…`).
+
+- `type=all` (default): house filter calls the house endpoint through
+  TanStack Query (`['characters', 'house', house]`); no house selected
+  means the full list (`['characters']`).
+- `type=students` / `type=staff`: fetches the type endpoint
+  (`['characters', 'students']` / `['characters', 'staff']`); a house
+  selection then filters that list client-side, because the type endpoints
+  ignore query parameters. The house endpoint is not called in this mode.
+
+Known house values: `Gryffindor`, `Slytherin`, `Hufflepuff`, `Ravenclaw`
+(135 records total; the remaining 302 have no house and are unreachable
+through the endpoint). Search and pagination always apply client-side over
+whichever list is loaded.
 
 ## Houses
 

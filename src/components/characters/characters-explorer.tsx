@@ -1,21 +1,23 @@
 "use client";
 
-import { parseAsInteger, useQueryState } from "nuqs";
+import { parseAsInteger, parseAsStringLiteral, useQueryState } from "nuqs";
 
 import { CharacterGrid } from "@/components/characters/character-grid";
 import { CharacterGridSkeleton } from "@/components/characters/character-grid-skeleton";
 import { HouseFilter } from "@/components/characters/house-filter";
 import { Pagination } from "@/components/characters/pagination";
 import { SearchInput } from "@/components/characters/search-input";
+import { TypeFilter } from "@/components/characters/type-filter";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { Button } from "@/components/ui/button";
 import {
   useCharacters,
   useHouseCharacters,
+  useTypeCharacters,
 } from "@/features/characters/queries";
 import { searchCharacters } from "@/features/characters/utils";
-import { getHouseList } from "@/features/houses/utils";
+import { getHouseList, houseToSlug } from "@/features/houses/utils";
 import { paginate } from "@/lib/utils";
 
 export const CHARACTERS_PAGE_SIZE = 12;
@@ -35,13 +37,34 @@ export function CharactersExplorer() {
     defaultValue: "",
     clearOnDefault: true,
   });
+  const [type, setType] = useQueryState(
+    "type",
+    parseAsStringLiteral(["all", "students", "staff"] as const).withDefault(
+      "all",
+    ),
+  );
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
 
   const allCharactersQuery = useCharacters();
-  const houseCharactersQuery = useHouseCharacters(house);
-  const query = house ? houseCharactersQuery : allCharactersQuery;
+  const houseCharactersQuery = useHouseCharacters(house, type === "all");
+  const typeCharactersQuery = useTypeCharacters(type);
 
-  const characters = query.data ?? [];
+  // Type endpoints ignore query params (verified), so a house selection
+  // combines client-side over the type list; for type=all the house
+  // endpoint keeps doing the server-side filtering.
+  const query =
+    type === "all"
+      ? house
+        ? houseCharactersQuery
+        : allCharactersQuery
+      : typeCharactersQuery;
+
+  const characters =
+    type !== "all" && house
+      ? (typeCharactersQuery.data ?? []).filter(
+          (c) => c.house !== null && houseToSlug(c.house) === house,
+        )
+      : (query.data ?? []);
   const houses = getHouseList(allCharactersQuery.data ?? []);
   const filtered = searchCharacters(characters, search);
   const pageItems = paginate(filtered, page, CHARACTERS_PAGE_SIZE);
@@ -49,6 +72,7 @@ export function CharactersExplorer() {
   const clearFilters = () => {
     setSearch(null);
     setHouse(null);
+    setType(null);
     setPage(1);
   };
 
@@ -66,23 +90,42 @@ export function CharactersExplorer() {
     );
   }
 
+  const emptyTitle =
+    type === "students"
+      ? "No students found"
+      : type === "staff"
+        ? "No staff found"
+        : "No characters found";
+
   return (
     <div className="space-y-8">
       <SearchInput />
 
-      <section aria-labelledby="houses-heading" className="space-y-3">
-        <h2
-          id="houses-heading"
-          className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground"
-        >
-          Houses
-        </h2>
-        <HouseFilter houses={houses} />
-      </section>
+      <div className="flex flex-wrap gap-6">
+        <section aria-labelledby="type-heading" className="space-y-3">
+          <h2
+            id="type-heading"
+            className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground"
+          >
+            Character Type
+          </h2>
+          <TypeFilter />
+        </section>
+
+        <section aria-labelledby="houses-heading" className="space-y-3">
+          <h2
+            id="houses-heading"
+            className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground"
+          >
+            Houses
+          </h2>
+          <HouseFilter houses={houses} />
+        </section>
+      </div>
 
       {filtered.length === 0 ? (
         <EmptyState
-          title="No characters found"
+          title={emptyTitle}
           description="Try another search or remove your filters."
           action={<Button onClick={clearFilters}>Clear filters</Button>}
         />
