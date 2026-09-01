@@ -22,10 +22,18 @@ export function Pagination({
 
   if (pageCount <= 1) return null;
 
+  // Clamped to [1, pageCount]; invalid input (e.g. empty) is ignored.
+  const handleJump = (value: string) => {
+    const target = Number.parseInt(value, 10);
+    if (!Number.isNaN(target)) {
+      setPage(Math.min(Math.max(1, target), pageCount));
+    }
+  };
+
   return (
     <nav
       aria-label="Pagination"
-      className="flex items-center justify-center gap-4 pt-2"
+      className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 pt-2"
     >
       <Button
         variant="outline"
@@ -41,6 +49,34 @@ export function Pagination({
         <span className="font-medium text-foreground">{current}</span> of{" "}
         {pageCount}
       </p>
+      {/* Uncontrolled input keyed by `current`: remounting resets its value
+          when the page changes, so no state-sync effect is needed. */}
+      <form
+        aria-label="Jump to page"
+        className="flex items-center gap-1.5"
+        onSubmit={(event) => {
+          event.preventDefault();
+          const form = new FormData(event.currentTarget);
+          handleJump(String(form.get("jump-to") ?? ""));
+        }}
+      >
+        <label htmlFor="jump-to" className="sr-only">
+          Jump to page
+        </label>
+        <input
+          id="jump-to"
+          name="jump-to"
+          type="number"
+          min={1}
+          max={pageCount}
+          key={current}
+          defaultValue={current}
+          className="h-8 w-14 rounded-md border border-input bg-background px-2 text-center text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+        />
+        <Button type="submit" variant="outline" size="sm">
+          Go
+        </Button>
+      </form>
       <Button
         variant="outline"
         size="sm"
