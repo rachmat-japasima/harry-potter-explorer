@@ -9,15 +9,19 @@ import { useDebounce } from "@/hooks/use-debounce";
 /**
  * Debounced search box backed by the `search` URL param (?search=…).
  * Updates are debounced so each keystroke does not rewrite the URL/history.
+ * `onDebouncedChange` fires together with the debounced search commit —
+ * callers use it to reset pagination when the query changes.
  */
 export function SearchInput({
   label,
   placeholder,
   debounceMs = 500,
+  onDebouncedChange,
 }: {
   label: string;
   placeholder: string;
   debounceMs?: number;
+  onDebouncedChange?: (value: string) => void;
 }) {
   const [search, setSearch] = useQueryState("search", {
     defaultValue: "",
@@ -28,7 +32,13 @@ export function SearchInput({
 
   const [inputValue, setInputValue] = useState(search);
 
-  const setSearchDebounced = useDebounce(setSearch, debounceMs);
+  const setSearchDebounced = useDebounce(
+    (value: string) => {
+      setSearch(value);
+      onDebouncedChange?.(value);
+    },
+    debounceMs,
+  );
 
   // Sync URL → local input. Adjusted during render (React's recommended
   // pattern for adjusting state when a prop changes) instead of in an

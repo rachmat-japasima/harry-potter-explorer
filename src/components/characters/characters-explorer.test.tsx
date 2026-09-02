@@ -251,6 +251,29 @@ describe("CharactersExplorer", () => {
     });
   });
 
+  it("resets pagination when the search changes", async () => {
+    const onUrlUpdate = vi.fn();
+    mocks.getCharacters.mockResolvedValue(characters);
+    renderWithProviders(<CharactersExplorer />, {
+      searchParams: "?page=2",
+      onUrlUpdate,
+    });
+
+    fireEvent.change(await screen.findByRole("searchbox"), {
+      target: { value: "harry" },
+    });
+
+    await waitFor(
+      () => {
+        const last = onUrlUpdate.mock.calls.at(-1)?.[0]?.queryString ?? "";
+        // The debounced search commit lands together with the page reset.
+        expect(last).toContain("search=harry");
+        expect(last).not.toContain("page=");
+      },
+      { timeout: 2000 },
+    );
+  });
+
   it("shows a type-specific empty state", async () => {
     mocks.getCharacters.mockResolvedValue(characters);
     mocks.getStudents.mockResolvedValue([]);

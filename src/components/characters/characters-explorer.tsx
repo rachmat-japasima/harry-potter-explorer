@@ -102,6 +102,7 @@ export function CharactersExplorer() {
       <SearchInput
         label="Search characters"
         placeholder="Search characters by name…"
+        onDebouncedChange={() => setPage(1)}
       />
 
       <div className="flex flex-wrap gap-6">
