@@ -223,6 +223,7 @@ describe("CharactersExplorer", () => {
   it("resets pagination when the type filter changes", async () => {
     const onUrlUpdate = vi.fn();
     mocks.getCharacters.mockResolvedValue(characters);
+    mocks.getStudents.mockResolvedValue([]);
     renderWithProviders(<CharactersExplorer />, {
       searchParams: "?page=2",
       onUrlUpdate,

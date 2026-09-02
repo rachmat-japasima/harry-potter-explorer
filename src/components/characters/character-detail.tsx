@@ -8,7 +8,7 @@ import { Container } from "@/components/layout/container";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useCharacter } from "@/features/characters/queries";
 import type { Character } from "@/features/characters/types";
 import { getHouseStyles } from "@/features/houses/utils";
@@ -52,9 +52,9 @@ export function CharacterDetail({ id }: { id: string }) {
           title="Character not found"
           description="We couldn't find this character."
           action={
-            <Button render={<Link href="/characters" />}>
+            <Link href="/characters" className={buttonVariants()}>
               Back to Characters
-            </Button>
+            </Link>
           }
         />
       )}
