@@ -6,10 +6,10 @@ import { CharacterGrid } from "@/components/characters/character-grid";
 import { CharacterGridSkeleton } from "@/components/characters/character-grid-skeleton";
 import { HouseFilter } from "@/components/characters/house-filter";
 import { Pagination } from "@/components/characters/pagination";
-import { SearchInput } from "@/components/characters/search-input";
 import { TypeFilter } from "@/components/characters/type-filter";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
+import { SearchInput } from "@/components/shared/search-input";
 import { Button } from "@/components/ui/button";
 import {
   useCharacters,
@@ -99,7 +99,10 @@ export function CharactersExplorer() {
 
   return (
     <div className="space-y-8">
-      <SearchInput />
+      <SearchInput
+        label="Search characters"
+        placeholder="Search characters by name…"
+      />
 
       <div className="flex flex-wrap gap-6">
         <section aria-labelledby="type-heading" className="space-y-3">

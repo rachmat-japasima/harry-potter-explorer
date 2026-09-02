@@ -7,10 +7,18 @@ import { useQueryState } from "nuqs";
 import { useDebounce } from "@/hooks/use-debounce";
 
 /**
- * Character search. State lives in the URL (?search=…); updates are
- * debounced so each keystroke does not rewrite the URL/history.
+ * Debounced search box backed by the `search` URL param (?search=…).
+ * Updates are debounced so each keystroke does not rewrite the URL/history.
  */
-export function SearchInput({ debounceMs = 500 }: { debounceMs?: number }) {
+export function SearchInput({
+  label,
+  placeholder,
+  debounceMs = 500,
+}: {
+  label: string;
+  placeholder: string;
+  debounceMs?: number;
+}) {
   const [search, setSearch] = useQueryState("search", {
     defaultValue: "",
     clearOnDefault: true,
@@ -43,14 +51,14 @@ export function SearchInput({ debounceMs = 500 }: { debounceMs?: number }) {
         className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
       />
       <label htmlFor={inputId} className="sr-only">
-        Search characters
+        {label}
       </label>
       <input
         id={inputId}
         type="search"
         value={inputValue}
         onChange={(event) => handleChange(event.target.value)}
-        placeholder="Search characters by name…"
+        placeholder={placeholder}
         className="h-11 w-full rounded-md border border-input bg-background pl-9 pr-3 text-sm shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
       />
     </div>

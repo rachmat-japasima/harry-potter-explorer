@@ -1,8 +1,13 @@
 import { getJSON } from "@/lib/api-client";
-import { spellSchema } from "./schema";
-import type { Spell } from "./types";
 
-/** Fetch the full spell collection (77 records, no pagination or filters). */
+import { apiSpellSchema } from "@/features/spells/schema";
+import type { Spell } from "@/features/spells/types";
+
+function parseSpells(raw: unknown): Spell[] {
+  return apiSpellSchema.array().parse(raw);
+}
+
+/** Fetch the full spell list (77 records; no query params exist). */
 export async function getSpells(): Promise<Spell[]> {
-  return spellSchema.array().parse(await getJSON("/api/spells"));
+  return parseSpells(await getJSON("/api/spells"));
 }

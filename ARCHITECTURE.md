@@ -65,7 +65,8 @@ Zustand (only when required)
 ## Data Flow
 
 Build time (SSG): QueryClient → `fetchQuery` → `dehydrate` →
-`HydrationBoundary` — the static page carries the full character list.
+`HydrationBoundary` — the static pages carry the full character and spell
+lists.
 Runtime: TanStack Query holds the hydrated cache; search / house / type /
 pagination apply client-side; lazy queries (students, staff, house) fetch
 only when selected. Rationale in `DECISIONS.md`.
@@ -77,11 +78,13 @@ only when selected. Rationale in `DECISIONS.md`.
 ```
 src/
 ├── app/                    # routes; server components by default
-│   └── characters/[id]/
-├── components/             # UI per feature (characters/, layout/, shared/)
+│   ├── characters/[id]/
+│   └── spells/
+├── components/             # UI per feature (characters/, spells/, layout/, shared/)
 ├── features/               # per-domain logic
 │   ├── characters/         # api, queries, types, schema, utils
-│   └── houses/             # utils only (no houses endpoint exists)
+│   ├── houses/             # utils only (no houses endpoint exists)
+│   └── spells/             # api, queries, types, schema, utils
 ├── lib/                    # api-client, utils
 ├── providers/              # theme, TanStack Query
 └── test/                   # fixtures, render helper, setup

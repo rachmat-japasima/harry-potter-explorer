@@ -38,8 +38,10 @@ page.
 ~182 KB list hydrated per page (N+1 build fetches) or embedded per page;
 the server-rendered shell + client cache lookup stays.
 
-**Spells**: no `/spells` page exists yet (deferred feature). The same
-pattern applies when it lands.
+**Spells**: `/spells` (2026-09-02) uses the same pattern — `prefetchSpells`
+→ `HydrationBoundary` in `src/app/spells/page.tsx`, hydrating the 77-record
+list. No pagination or detail pages: the API has neither (verified), and
+77 small text cards render fine in one page.
 
 **Deployment**: plain `next build` SSG — Cloudflare Pages compatible; no
 Vercel-only APIs introduced.

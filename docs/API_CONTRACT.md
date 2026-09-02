@@ -185,9 +185,10 @@ Paginate displayed results (client-side)
 
 **Not supported by the API.** There is no search query parameter.
 
-**Application strategy**: client-side name search over the loaded list
-(`searchCharacters` in `src/features/characters/utils.ts` —
-case-insensitive substring match on `name` and `alternate_names`).
+**Application strategy**: client-side search over the loaded list —
+`searchCharacters` in `src/features/characters/utils.ts` (name +
+`alternate_names`) and `searchSpells` in `src/features/spells/utils.ts`
+(name + description). Both are case-insensitive substring matches.
 
 ## Filtering
 

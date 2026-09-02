@@ -1,4 +1,5 @@
 import type { Character } from "@/features/characters/types";
+import type { Spell } from "@/features/spells/types";
 
 /** Fully populated Gryffindor character (no image → exercises fallback). */
 export const harry: Character = {
@@ -94,4 +95,27 @@ export const minimal: Character = {
   alternate_actors: [],
   alive: true,
   image: null,
+};
+
+/** Fully populated spell. */
+export const lumos: Spell = {
+  id: "lumos-1",
+  name: "Lumos",
+  description: "A light spell that illuminates the caster's wand",
+};
+
+/** Spell with a longer description — exercises card text wrapping. */
+export const incendio: Spell = {
+  id: "incendio-1",
+  name: "Incendio",
+  description:
+    "A fire-making spell that produces a jet of flames from the tip of the caster's wand; useful for heating and cooking, but dangerous when misused",
+};
+
+/** Spell matched by description rather than name. */
+export const expectoPatronum: Spell = {
+  id: "patronum-1",
+  name: "Expecto Patronum",
+  description:
+    "Conjures a silvery guardian called a Patronus to repel Dementors",
 };
