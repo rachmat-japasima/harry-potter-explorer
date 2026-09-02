@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Harry Potter Explorer
+
+A Next.js app that explores the wizarding world — characters, houses, and
+spells — fed by the public [Harry Potter API](https://hp-api.onrender.com).
+
+## Features
+
+- **Characters** — full list with client-side search (`?search=…`),
+  house (`?house=…`) and type (`?type=students|staff`) filters, pagination
+  (`?page=…`), and a detail view per character. All URL state is
+  shareable and survives refresh / back / forward (nuqs).
+- **Spells** — the 77-record spell list with debounced client-side search.
+- **Build-time static data** — the immutable datasets are prefetched at
+  build time (SSG) and hydrated into TanStack Query, so the browser never
+  pays the API's cold start on first visit.
+- **Restrained "magical editorial" design** — warm parchment, deep ink,
+  brass accents; light/dark theme, respects `prefers-reduced-motion`.
+
+## Tech Stack
+
+- Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4
+- TanStack Query (server state) · nuqs (URL state) · Zod (API validation)
+- shadcn/ui v4 (Base UI) · motion (animations) · Vitest + Testing Library
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> The hosted API sleeps when idle — the first request (including at build
+> time) can take tens of seconds or fail. A `next build` can therefore be
+> slow or fail if the API just woke up; retrying works.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Learn More
+| Script | Description |
+|---|---|
+| `npm run dev` | Development server |
+| `npm run build` | Production build (SSG) |
+| `npm start` | Serve the production build |
+| `npm run lint` | ESLint |
+| `npm test` | Run the test suite once (Vitest) |
+| `npm run test:watch` | Test suite in watch mode |
+| `npm run format` | Prettier |
 
-To learn more about Next.js, take a look at the following resources:
+Type checking: there is no `typecheck` script — use `npx tsc --noEmit`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The API base URL is overridable at build time:
 
-## Deploy on Vercel
+```
+NEXT_PUBLIC_API_URL=https://hp-api.onrender.com
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+See `.env.example`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Documentation
+
+- [PRD.md](PRD.md) — product requirements
+- [ARCHITECTURE.md](ARCHITECTURE.md) — layers, data flow, project structure
+- [DECISIONS.md](DECISIONS.md) — key decisions (SSG hydration, stale policy)
+- [docs/API_CONTRACT.md](docs/API_CONTRACT.md) — verified API facts and
+  how the app works around them (no search, no pagination, no detail endpoints)
+- [docs/DATA_MODEL.md](docs/DATA_MODEL.md) — data model and normalization
+
+## Testing
+
+Vitest + Testing Library (jsdom). Tests cover the API boundary, search /
+filter / pagination behavior, URL state, and loading / error / empty states:
+
+```bash
+npm test
+```
+
+## Deploy
+
+Plain `next build` SSG output — deployable anywhere static Next.js runs,
+including Cloudflare Pages. No server-side-only APIs are introduced.
