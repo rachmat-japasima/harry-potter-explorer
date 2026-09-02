@@ -1,4 +1,5 @@
 import { CharacterDetail } from "@/components/characters/character-detail";
+import { getCharacters } from "@/features/characters/api";
 
 export const metadata = {
   title: "Character",
@@ -9,6 +10,15 @@ export const metadata = {
  * shared list cache (the API has no detail endpoint), so the interactive
  * detail view is a client component.
  */
+
+export async function generateStaticParams() {
+  const characters = await getCharacters();
+
+  return characters.map((character) => ({
+    id: character.id,
+  }));
+}
+
 export default async function CharacterPage(
   props: PageProps<"/characters/[id]">,
 ) {
