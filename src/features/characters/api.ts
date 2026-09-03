@@ -13,6 +13,15 @@ export async function getCharacters(): Promise<Character[]> {
   return parseCharacters(await getJSON("/api/characters"));
 }
 
+/**
+ * Fetch one character via the dedicated endpoint, GET /api/character/:id
+ * (singular — the plural form 404s). Returns a one-element array; [] for
+ * unknown ids. Same record shape as the full list.
+ */
+export async function getCharactersById(id: string): Promise<Character[]> {
+  return parseCharacters(await getJSON(`/api/character/${id}`));
+}
+
 /** Fetch one house's records via the dedicated endpoint. */
 export async function getHouseCharacters(house: string): Promise<Character[]> {
   return parseCharacters(

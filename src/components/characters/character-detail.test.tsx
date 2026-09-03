@@ -7,23 +7,20 @@ import { harry, minimal } from "@/test/fixtures";
 import { renderWithProviders } from "@/test/render";
 
 const mocks = vi.hoisted(() => ({
-  getCharacters: vi.fn(),
-  getHouseCharacters: vi.fn(),
+  getCharactersById: vi.fn(),
 }));
 
 vi.mock("@/features/characters/api", () => ({
-  getCharacters: mocks.getCharacters,
-  getHouseCharacters: mocks.getHouseCharacters,
+  getCharactersById: mocks.getCharactersById,
 }));
 
 beforeEach(() => {
-  mocks.getCharacters.mockReset();
-  mocks.getHouseCharacters.mockReset();
+  mocks.getCharactersById.mockReset();
 });
 
 describe("CharacterDetail", () => {
   it("renders the character with house, facts, and structured wand", async () => {
-    mocks.getCharacters.mockResolvedValue([harry]);
+    mocks.getCharactersById.mockResolvedValue([harry]);
     renderWithProviders(<CharacterDetail id="harry-1" />);
 
     expect(
@@ -43,7 +40,7 @@ describe("CharacterDetail", () => {
   });
 
   it("omits fields with no meaningful data", async () => {
-    mocks.getCharacters.mockResolvedValue([minimal]);
+    mocks.getCharactersById.mockResolvedValue([minimal]);
     renderWithProviders(<CharacterDetail id="minimal-1" />);
 
     expect(
@@ -59,7 +56,7 @@ describe("CharacterDetail", () => {
   });
 
   it("shows the generic error state and retries", async () => {
-    mocks.getCharacters
+    mocks.getCharactersById
       .mockRejectedValueOnce(new Error("boom"))
       .mockResolvedValue([harry]);
     renderWithProviders(<CharacterDetail id="harry-1" />);
@@ -67,6 +64,8 @@ describe("CharacterDetail", () => {
     expect(
       await screen.findByText("We couldn't load this character."),
     ).toBeInTheDocument();
+    // The error state must not double up with the not-found state.
+    expect(screen.queryByText("Character not found")).not.toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: "Try again" }));
 
@@ -76,7 +75,7 @@ describe("CharacterDetail", () => {
   });
 
   it("shows the not-found state for an unknown id with a back link", async () => {
-    mocks.getCharacters.mockResolvedValue([harry]);
+    mocks.getCharactersById.mockResolvedValue([]);
     renderWithProviders(<CharacterDetail id="nope-1" />);
 
     expect(await screen.findByText("Character not found")).toBeInTheDocument();
@@ -91,7 +90,7 @@ describe("CharacterDetail", () => {
   });
 
   it("provides a back link to the character explorer", async () => {
-    mocks.getCharacters.mockResolvedValue([harry]);
+    mocks.getCharactersById.mockResolvedValue([harry]);
     renderWithProviders(<CharacterDetail id="harry-1" />);
 
     await screen.findByRole("heading", { level: 1, name: "Harry Potter" });

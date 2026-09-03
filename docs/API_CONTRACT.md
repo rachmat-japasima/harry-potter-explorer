@@ -91,13 +91,20 @@ Field semantics:
 
 ### Get Character
 
-**Does not exist.** `GET /api/characters/:id` returns `404 Sorry can't find
-that!` even for ids taken directly from the list response (verified with 4
-real UUIDs). There is no detail endpoint on this deployment.
+```
+GET /api/character/:id
+```
 
-**Application strategy**: the detail view reads from the already-fetched
-full list (`['characters']` TanStack Query cache, lookup by `id`). No fake
-endpoint is called.
+**Singular `/api/character`** (verified live 2026-09-03). `200 OK`, a JSON
+**array** containing at most one character record, same shape as the list.
+Unknown id → `200 []` (no 404). The plural form `GET /api/characters/:id`
+returns `404 Sorry can't find that!` — the singular form is the only detail
+route on this deployment.
+
+**Application strategy**: the detail route shell passes the URL id to a
+client component, which fetches this endpoint directly (`getCharactersById`
+in `src/features/characters/api.ts`). `[]` → not-found state; request
+failure → error state with retry.
 
 ### Get Students
 

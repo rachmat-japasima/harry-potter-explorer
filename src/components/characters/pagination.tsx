@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { parseAsInteger, useQueryState } from "nuqs";
 
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
 
 /**
  * Client-side pagination (the API returns whole collections). Current page
@@ -19,6 +20,14 @@ export function Pagination({
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const pageCount = Math.max(1, Math.ceil(totalItems / pageSize));
   const current = Math.min(Math.max(1, page), pageCount);
+
+  // Keep the URL honest when a deep link or filter change lands past the
+  // last page; runs before the single-page early return below.
+  useEffect(() => {
+    if (page > pageCount) {
+      setPage(pageCount);
+    }
+  }, [page, pageCount, setPage]);
 
   if (pageCount <= 1) return null;
 
@@ -45,8 +54,7 @@ export function Pagination({
         Previous
       </Button>
       <p className="text-sm text-muted-foreground">
-        Page{" "}
-        <span className="font-medium text-foreground">{current}</span> of{" "}
+        Page <span className="font-medium text-foreground">{current}</span> of{" "}
         {pageCount}
       </p>
       {/* Uncontrolled input keyed by `current`: remounting resets its value

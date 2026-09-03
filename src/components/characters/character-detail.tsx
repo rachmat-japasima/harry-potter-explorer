@@ -9,23 +9,51 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { useCharacter } from "@/features/characters/queries";
 import type { Character } from "@/features/characters/types";
 import { getHouseStyles } from "@/features/houses/utils";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { getCharactersById } from "@/features/characters/api";
 
 function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 /**
- * Character detail. The API has no detail endpoint, so the record comes
- * from the full-list TanStack Query cache (see features/characters/queries).
- * Only fields with meaningful data render.
+ * Character detail. Fetched directly from the client via the API's
+ * dedicated endpoint, GET /api/character/:id (a one-element array; [] for
+ * unknown ids). Only fields with meaningful data render.
  */
 export function CharacterDetail({ id }: { id: string }) {
-  const { character, isPending, isError, isNotFound, refetch } =
-    useCharacter(id);
+  const [character, setCharacter] = useState<Character | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  // Bumped by the retry button to re-run the effect below.
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    let ignore = false;
+    getCharactersById(id)
+      .then((records) => {
+        if (ignore) return;
+        setCharacter(records[0]);
+      })
+      .catch(() => {
+        if (!ignore) setIsError(true);
+      })
+      .finally(() => {
+        if (!ignore) setIsLoading(false);
+      });
+    return () => {
+      ignore = true;
+    };
+  }, [id, attempt]);
+
+  const retry = () => {
+    setIsError(false);
+    setIsLoading(true);
+    setAttempt((n) => n + 1);
+  };
 
   return (
     <Container className="py-10 sm:py-16">
@@ -37,17 +65,17 @@ export function CharacterDetail({ id }: { id: string }) {
         Back to Characters
       </Link>
 
-      {isPending && <DetailSkeleton />}
+      {isLoading && !character && <DetailSkeleton />}
 
       {isError && (
         <ErrorState
           title="Something went wrong"
           description="We couldn't load this character."
-          action={<Button onClick={() => refetch()}>Try again</Button>}
+          action={<Button onClick={retry}>Try again</Button>}
         />
       )}
 
-      {isNotFound && (
+      {!character && !isLoading && !isError && (
         <EmptyState
           title="Character not found"
           description="We couldn't find this character."
@@ -104,7 +132,10 @@ function DetailLayout({ character }: { character: Character }) {
               houseStyles.badge,
             )}
           >
-            <span aria-hidden className={cn("size-1.5 rounded-full", houseStyles.dot)} />
+            <span
+              aria-hidden
+              className={cn("size-1.5 rounded-full", houseStyles.dot)}
+            />
             {character.house}
           </span>
         )}
@@ -125,10 +156,7 @@ function DetailLayout({ character }: { character: Character }) {
         {facts.length > 0 && (
           <dl className="mt-8 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
             {facts.map(([label, value]) => (
-              <div
-                key={label}
-                className="border-b border-border/50 pb-2"
-              >
+              <div key={label} className="border-b border-border/50 pb-2">
                 <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   {label}
                 </dt>
@@ -152,7 +180,9 @@ function DetailLayout({ character }: { character: Character }) {
                   <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     Wood
                   </dt>
-                  <dd className="mt-0.5 text-sm">{capitalize(character.wand.wood)}</dd>
+                  <dd className="mt-0.5 text-sm">
+                    {capitalize(character.wand.wood)}
+                  </dd>
                 </div>
               )}
               {character.wand.core && (
@@ -160,7 +190,9 @@ function DetailLayout({ character }: { character: Character }) {
                   <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     Core
                   </dt>
-                  <dd className="mt-0.5 text-sm">{capitalize(character.wand.core)}</dd>
+                  <dd className="mt-0.5 text-sm">
+                    {capitalize(character.wand.core)}
+                  </dd>
                 </div>
               )}
               {character.wand.length !== null && (
@@ -168,7 +200,9 @@ function DetailLayout({ character }: { character: Character }) {
                   <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     Length
                   </dt>
-                  <dd className="mt-0.5 text-sm">{character.wand.length}&quot;</dd>
+                  <dd className="mt-0.5 text-sm">
+                    {character.wand.length}&quot;
+                  </dd>
                 </div>
               )}
             </dl>
@@ -181,7 +215,10 @@ function DetailLayout({ character }: { character: Character }) {
 
 function DetailSkeleton() {
   return (
-    <div className="mt-8 grid gap-8 md:grid-cols-[300px_1fr] md:gap-12" role="status">
+    <div
+      className="mt-8 grid gap-8 md:grid-cols-[300px_1fr] md:gap-12"
+      role="status"
+    >
       <Skeleton className="aspect-[3/4] rounded-lg" />
       <div className="space-y-4">
         <Skeleton className="h-9 w-2/3 max-w-xs" />

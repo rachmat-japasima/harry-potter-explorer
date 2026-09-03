@@ -1,5 +1,4 @@
 import { CharacterDetail } from "@/components/characters/character-detail";
-import { getCharacters } from "@/features/characters/api";
 
 export const metadata = {
   title: "Character",
@@ -11,17 +10,10 @@ export const metadata = {
  * detail view is a client component.
  */
 
-export async function generateStaticParams() {
-  const characters = await getCharacters();
-
-  return characters.map((character) => ({
-    id: character.id,
-  }));
-}
-
 export default async function CharacterPage(
   props: PageProps<"/characters/[id]">,
 ) {
   const { id } = await props.params;
+
   return <CharacterDetail id={id} />;
 }

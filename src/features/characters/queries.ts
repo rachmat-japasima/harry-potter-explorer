@@ -8,7 +8,7 @@ import {
 } from "@/features/characters/api";
 import type { CharacterType } from "@/features/characters/types";
 
-/** Full character list — the shared cache detail pages read from. */
+/** Full character list — the explorer's default view. */
 export function useCharacters() {
   return useQuery({
     queryKey: ["characters"],
@@ -59,21 +59,4 @@ export function useTypeCharacters(type: CharacterType) {
     queryFn: () => (queryFn ? queryFn() : Promise.resolve([])),
     enabled: queryFn !== null,
   });
-}
-
-/**
- * Character detail. The API has no detail endpoint (404s, verified), so the
- * detail view reads from the already-fetched full list cache, lookup by id.
- * `isNotFound` distinguishes "loaded list without this id" from an API error.
- */
-export function useCharacter(id: string) {
-  const charactersQuery = useCharacters();
-  const character =
-    charactersQuery.data?.find((c) => c.id === id) ?? null;
-
-  return {
-    ...charactersQuery,
-    character,
-    isNotFound: charactersQuery.isSuccess && character === null,
-  };
 }
