@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     // The 25 populated character portraits are served from imagekit.
     unoptimized: true,
   },
-  // output: "export",
+  output: "export",
 };
 
 export default nextConfig;
